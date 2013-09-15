@@ -3,7 +3,7 @@ description "Role for installing and configuring a vagrant box."
 
 default_attributes({
   "default" => {
-    "environment" => "foobux"
+    "environment" => "vagrant"
   },
 })
 
