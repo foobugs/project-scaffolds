@@ -1,0 +1,177 @@
+#!/bin/bash
+
+##
+# chef
+#
+# Script for installing chef-solo and executing cookbooks on remote machines.
+##
+
+#
+# Variables
+#
+
+ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+if [ -L "${BASH_SOURCE[0]}" ]
+then
+    ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../chef" && pwd )"
+fi
+
+# SSH username
+USERNAME=
+
+# SSH hostname
+HOSTNAME=
+
+#
+# Parameters
+#
+
+# Default action (all, install, provision)
+TASK="all"
+
+# Default environment (vagrant, stage, prod, ...)
+ENVIRONMENT="vagrant"
+
+_USERNAME=
+_HOSTNAME=
+
+#
+# Functions
+#
+
+function welcome {
+    echo "
+
+.|'''', '||             .|';  .|'''|         '||'  Installation & Provisioning
+||       ||             ||    ||              ||         
+||       ||''|, .|''|, '||'   '|'''|, .|''|,  ||  .|''|, 
+||       ||  || ||..||  ||     .   || ||  ||  ||  ||  || 
+'|....' .||  || '|...  .||.    |...|' '|..|' .||. '|..|' 
+                            
+==============================================================================
+"
+}
+
+function usage {
+    echo "
+Usage:
+------
+    $(basename $0) [-a <all|install|provision>] [-e <env>] [-u <username>] [-h <hostname>]
+
+Parameters:
+-----------
+
+    -a              action to be performed
+                    - all (default)
+                        install and provisioning
+                    - install
+                        install chef on remote host
+                    - provision
+                        just do provisioning again
+    -e <env>        environment
+                    - vagrant (default)
+                    - stage
+                    - prod
+    -u <username>   ssh username
+    -h <hostname>   ssh hostname
+
+Example:
+--------
+
+    $(basename $0) -a install -e vagrant
+"
+}
+
+#
+# Main
+#
+# Check for no arguments
+if [ "$1" == "--help" ]
+then
+    welcome
+    usage
+    exit 1
+fi
+
+welcome
+
+# Parse arguments
+while getopts "a:e:" OPTION
+do
+    case ${OPTION} in
+        a)
+            TASK=${OPTARG}
+        ;;
+        e)
+            ENVIRONMENT=${OPTARG}
+        ;;
+        u)
+            _USERNAME=${OPTARG}
+        ;;
+        h)
+            _HOSTNAME=${OPTARG}
+        ;;
+   esac
+done
+
+shift $((${OPTIND} - 1))
+
+# Check for environment directory
+if [ ! -d "${ROOT_DIR}/environments/${ENVIRONMENT}" ]
+then
+    echo "Directory ${ROOT_DIR}/environments/${ENVIRONMENT} does not exist!"
+    exit 1
+fi
+
+# Load environment configuration
+if [ -f "${ROOT_DIR}/environments/${ENVIRONMENT}/config.sh" ]
+then
+    . "${ROOT_DIR}/environments/${ENVIRONMENT}/config.sh"
+fi
+
+# Overwrite options from given parameters
+[ ! -z ${_USERNAME} ] && USERNAME=${_USERNAME}
+[ ! -z ${_HOSTNAME} ] && HOSTNAME=${_HOSTNAME}
+
+# Removes all keys belonging to host from a known_hosts file.
+ssh-keygen -R "${HOSTNAME}" 2> /dev/null
+
+# Copy all chef data to remote server
+tar -C ${ROOT_DIR} --exclude=".git" --exclude=".vagrant" -czf - . | ssh -o "StrictHostKeyChecking no" "${USERNAME}@${HOSTNAME}" "
+    rm -rf /tmp/chef
+    mkdir /tmp/chef
+    tar -C /tmp/chef -xzf - 
+"
+
+#
+# Running main task: Install
+#
+if [ "${TASK}" == "all" -o "${TASK}" == "install" ]
+then
+    echo "Running task: installation"
+    echo "--------------------------"
+    ssh -q -t -o "StrictHostKeyChecking no" "${USERNAME}@${HOSTNAME}" "
+        cd /tmp/chef
+        bin/tasks/install.sh -e ${ENVIRONMENT}
+    "
+fi
+
+#
+# Running main task: Provision
+#
+if [ "${TASK}" == "all" -o "${TASK}" == "provision" ]
+then
+    echo "Running task: provisioning"
+    echo "--------------------------"
+    ssh -q -t -o "StrictHostKeyChecking no" "${USERNAME}@${HOSTNAME}" "
+        cd /tmp/chef &&
+        bin/tasks/provision.sh -e ${ENVIRONMENT}
+    "
+fi
+
+# Cleanup
+ssh -q -t -o "StrictHostKeyChecking no" "${USERNAME}@${HOSTNAME}" "
+    rm -rf /tmp/chef
+"
+
+exit 0
