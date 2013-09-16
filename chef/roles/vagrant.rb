@@ -50,6 +50,7 @@ run_list(
   "recipe[ntp]",
   "recipe[nginx::repo]",
   "recipe[nginx]",
+  "recipe[default::nginx]",
   "recipe[default::mysql]",
   "recipe[mysql::server]",
   "recipe[default::mysql_create_users]",
