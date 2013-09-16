@@ -11,6 +11,7 @@ override_attributes({
 })
 
 run_list(
+  "recipe[ntp]",
   "recipe[default]",
   "recipe[default::unattended-upgrades]"
 )
