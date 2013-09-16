@@ -28,6 +28,18 @@ default_attributes({
       "thread_concurrency" => 6,
       "innodb_thread_concurrency" => 6
     }
+  },
+
+  "php" => {
+    "install_method" => "package_php55",
+    "directives" => {
+      "date.timezone" => "UTC",
+      "error_reporting" => "E_ALL",
+      "display_errors" => "On",
+      "display_startup_errors" => "On",
+      "opcache.enable" => 0,
+      "opcache.enable_cli" => 0,
+    }
   }
 })
 
@@ -41,6 +53,10 @@ run_list(
   "recipe[default::mysql]",
   "recipe[mysql::server]",
   "recipe[default::mysql_create_users]",
+  "recipe[php]",
+  "recipe[php::fpm55]",
+  "recipe[php::composer]",
+  "recipe[default::php]",
   "recipe[default]",
   "recipe[default::unattended-upgrades]"
 )
