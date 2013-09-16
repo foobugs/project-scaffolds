@@ -1,6 +1,9 @@
 [submodule "chef/cookbooks/ntp"]
 	path = chef/cookbooks/ntp
 	url = https://github.com/opscode-cookbooks/ntp.git
+[submodule "chef/cookbooks/apt"]
+	path = chef/cookbooks/apt
+	url = https://github.com/opscode-cookbooks/apt.git
 [submodule "chef/cookbooks/nginx"]
 	path = chef/cookbooks/nginx
 	url = https://github.com/opscode-cookbooks/nginx.git
