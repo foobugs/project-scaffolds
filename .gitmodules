@@ -1,9 +1,18 @@
 [submodule "chef/cookbooks/ntp"]
 	path = chef/cookbooks/ntp
 	url = https://github.com/opscode-cookbooks/ntp.git
+[submodule "chef/cookbooks/build-essential"]
+	path = chef/cookbooks/build-essential
+	url = https://github.com/opscode-cookbooks/build-essential.git
+[submodule "chef/cookbooks/yum"]
+	path = chef/cookbooks/yum
+	url = https://github.com/opscode-cookbooks/yum.git
 [submodule "chef/cookbooks/apt"]
 	path = chef/cookbooks/apt
 	url = https://github.com/opscode-cookbooks/apt.git
+[submodule "chef/cookbooks/runit"]
+	path = chef/cookbooks/runit
+	url = https://github.com/opscode-cookbooks/runit.git
 [submodule "chef/cookbooks/nginx"]
 	path = chef/cookbooks/nginx
 	url = https://github.com/opscode-cookbooks/nginx.git
