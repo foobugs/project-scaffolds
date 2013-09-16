@@ -171,7 +171,7 @@ fi
 
 # Cleanup
 ssh -q -t -o "StrictHostKeyChecking no" "${USERNAME}@${HOSTNAME}" "
-    rm -rf /tmp/chef
+    sudo rm -rf /tmp/chef
 "
 
 exit 0
