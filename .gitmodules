@@ -1,0 +1,3 @@
+[submodule "chef/cookbooks/ntp"]
+	path = chef/cookbooks/ntp
+	url = https://github.com/opscode-cookbooks/ntp.git
