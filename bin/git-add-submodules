@@ -1,0 +1,20 @@
+#!/bin/bash
+
+##
+# git-add-submodules
+#
+# Script that (re)adds git submodules based on configuration in .gitmodules.
+#
+
+GIT_MODULES_CONFIG=".gitmodules"
+
+git config -f ${GIT_MODULES_CONFIG} --get-regexp '^submodule\..*\.path$' |
+    while read PATH_KEY PATH_VALUE
+    do
+        URL_KEY=$(echo ${PATH_KEY} | sed 's/\.path/.url/')
+        URL_VALUE=$(git config -f ${GIT_MODULES_CONFIG} --get "${URL_KEY}")
+        rm -rf ${PATH_VALUE}
+        git submodule add ${URL_VALUE} ${PATH_VALUE}
+    done
+
+exit 0
