@@ -1,2 +1,4 @@
 /.vagrant/
+/chef/data_bags/prod/*
+/chef/data_bags/stage/*
 /Vagrantfile.local

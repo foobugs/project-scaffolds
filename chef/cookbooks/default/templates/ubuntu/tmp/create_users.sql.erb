@@ -1,0 +1,26 @@
+--
+-- create_users.sql
+--
+-- SQL script for creating new database users and grant access rights
+-- 
+
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ANSI';
+DROP PROCEDURE IF EXISTS `mysql`.drop_user_if_exists;
+DELIMITER $$
+CREATE PROCEDURE `mysql`.drop_user_if_exists()
+BEGIN
+	IF EXISTS(SELECT NULL FROM `mysql`.`user` WHERE `User` = '<%= @username %>' AND `Host` = 'localhost') THEN
+		DROP USER '<%= @username %>'@'localhost';
+	END IF;
+END; $$
+DELIMITER ;
+CALL `mysql`.drop_user_if_exists();
+DROP PROCEDURE IF EXISTS `mysql`.drop_user_if_exists;
+SET SQL_MODE=@OLD_SQL_MODE;
+
+CREATE USER '<%= @username %>'@'localhost' IDENTIFIED BY '<%= @password %>';
+
+GRANT USAGE ON *.* TO '<%= @username %>'@'localhost' IDENTIFIED BY '<%= @password %>' WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0 MAX_USER_CONNECTIONS 0;
+GRANT <%= @privileges %> ON `<%= @database %>`.* TO '<%= @username %>'@'localhost';
+
+FLUSH PRIVILEGES;
