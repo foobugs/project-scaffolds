@@ -1,0 +1,59 @@
+#!/bin/bash
+
+##
+# install-vagrant-nfs-sudoers
+#
+# Script that changes /etc/sudoers for using vagrant NFS shares without root
+# password prompting (inc. visudo syntax-checking).
+# 
+
+# Check for root
+if [ "$(id -u)" != "0" ]
+then
+	echo "Running script with sudo."
+    sudo ./${BASH_SOURCE[0]} "$@"
+    exit
+fi
+
+# Making temp file that contains the changes for /etc/sudoers file
+TMP=$(mktemp -t XXX.vagrant_sudoers)
+cat /etc/sudoers > "${TMP}"
+
+PLATFORM_TYPE="$(uname)"
+
+if [ "${PLATFORM_TYPE}" = "Darwin" ]
+then
+	cat >> "${TMP}" <<EOF
+ 
+# Allow passwordless startup of Vagrant when using NFS.
+Cmnd_Alias VAGRANT_EXPORTS_ADD = /usr/bin/su root -c echo '*' >> /etc/exports
+Cmnd_Alias VAGRANT_NFSD = /sbin/nfsd restart
+Cmnd_Alias VAGRANT_EXPORTS_REMOVE = /usr/bin/sed -e /*/ d -ibak /etc/exports
+%staff ALL=(root) NOPASSWD: VAGRANT_EXPORTS_ADD, VAGRANT_NFSD, VAGRANT_EXPORTS_REMOVE
+EOF
+fi
+
+if [ "${PLATFORM_TYPE}" = "Linux" ]
+then
+	cat >> "${TMP}" <<EOF
+ 
+Cmnd_Alias VAGRANT_EXPORTS_ADD = /bin/su root -c echo '*' >> /etc/exports
+Cmnd_Alias VAGRANT_NFSD = /etc/init.d/nfs-kernel-server restart
+Cmnd_Alias VAGRANT_EXPORTS_REMOVE = /bin/sed -e /*/ d -ibak /etc/exports
+%admin ALL=(root) NOPASSWD: VAGRANT_EXPORTS_ADD, VAGRANT_NFSD, VAGRANT_EXPORTS_REMOVE
+EOF
+fi
+
+# Check if the changes we want are OK
+visudo -c -f "${TMP}"
+if [ $? -eq 0 ]
+then
+	echo "Adding vagrant NFS commands to /etc/sudoers"
+	cat "${TMP}" > /etc/sudoers
+else
+	echo "sudoers syntax checking failed! /etc/sudoers not changed."
+fi
+
+rm -f "${TMP}"
+
+exit 0
