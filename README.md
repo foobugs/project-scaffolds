@@ -1,5 +1,7 @@
 > #### Quick Setup
 > 
+> To run the following commands see [Requirments](#Requirements)
+> 
 > ```
 > git clone --recursive git@github.com:[USERNAME]/REPONAME.git REPONAME
 > cd REPONAME/
@@ -13,5 +15,19 @@
 > ```
 
 # project-scaffolds
+
+Collection of scaffolds for different project setups.
+
+Collection of scaffolds for different project setups.
+
+Collection of scaffolds for different project setups.
+
+Collection of scaffolds for different project setups.
+
+Collection of scaffolds for different project setups.
+
+Collection of scaffolds for different project setups.
+
+Collection of scaffolds for different project setups.
 
 Collection of scaffolds for different project setups.
